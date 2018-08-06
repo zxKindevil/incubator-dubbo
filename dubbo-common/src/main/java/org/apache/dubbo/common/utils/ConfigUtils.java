@@ -167,6 +167,10 @@ public class ConfigUtils {
         }
     }
 
+    public static boolean containsKey(String key) {
+        return getProperty(key) != null;
+    }
+
     public static String getProperty(String key) {
         return getProperty(key, null);
     }
@@ -326,6 +330,14 @@ public class ConfigUtils {
         }
 
         return timeout;
+    }
+
+    public static boolean isGeneric(String generic) {
+        return generic != null
+                && !"".equals(generic)
+                && (Constants.GENERIC_SERIALIZATION_DEFAULT.equalsIgnoreCase(generic)  /* Normal generalization cal */
+                || Constants.GENERIC_SERIALIZATION_NATIVE_JAVA.equalsIgnoreCase(generic) /* Streaming generalization call supporting jdk serialization */
+                || Constants.GENERIC_SERIALIZATION_BEAN.equalsIgnoreCase(generic));
     }
 
 }

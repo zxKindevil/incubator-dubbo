@@ -50,7 +50,7 @@ public class ApplicationConfig extends AbstractConfig {
     // architecture layer
     private String architecture;
 
-    // environment, e.g. dev, test or production
+    // context, e.g. dev, test or production
     private String environment;
 
     // Java compiler
@@ -76,6 +76,9 @@ public class ApplicationConfig extends AbstractConfig {
     private Integer qosPort;
 
     private Boolean qosAcceptForeignIp;
+
+    private String config;
+    private String address;
 
     // customized parameters
     private Map<String, String> parameters;
@@ -141,10 +144,10 @@ public class ApplicationConfig extends AbstractConfig {
     }
 
     public void setEnvironment(String environment) {
-        checkName("environment", environment);
+        checkName("context", environment);
         if (environment != null) {
             if (!("develop".equals(environment) || "test".equals(environment) || "product".equals(environment))) {
-                throw new IllegalStateException("Unsupported environment: " + environment + ", only support develop/test/product, default is product.");
+                throw new IllegalStateException("Unsupported context: " + environment + ", only support develop/test/product, default is product.");
             }
         }
         this.environment = environment;
@@ -241,6 +244,24 @@ public class ApplicationConfig extends AbstractConfig {
 
     public void setQosAcceptForeignIp(Boolean qosAcceptForeignIp) {
         this.qosAcceptForeignIp = qosAcceptForeignIp;
+    }
+
+    @Parameter(key = "config.type")
+    public String getConfig() {
+        return config;
+    }
+
+    public void setConfig(String config) {
+        this.config = config;
+    }
+
+    @Parameter(key = "config.address")
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public Map<String, String> getParameters() {

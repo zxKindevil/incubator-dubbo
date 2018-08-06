@@ -17,29 +17,15 @@
 package org.apache.dubbo.config;
 
 import org.apache.dubbo.common.Constants;
-import org.apache.dubbo.common.URL;
-import org.apache.dubbo.common.Version;
-import org.apache.dubbo.common.extension.ExtensionLoader;
+import org.apache.dubbo.common.config.Environment;
 import org.apache.dubbo.common.utils.ConfigUtils;
-import org.apache.dubbo.common.utils.NetUtils;
 import org.apache.dubbo.common.utils.ReflectUtils;
-import org.apache.dubbo.common.utils.StringUtils;
-import org.apache.dubbo.common.utils.UrlUtils;
 import org.apache.dubbo.config.support.Parameter;
-import org.apache.dubbo.monitor.MonitorFactory;
-import org.apache.dubbo.monitor.MonitorService;
-import org.apache.dubbo.registry.RegistryFactory;
-import org.apache.dubbo.registry.RegistryService;
-import org.apache.dubbo.rpc.Filter;
-import org.apache.dubbo.rpc.InvokerListener;
-import org.apache.dubbo.rpc.ProxyFactory;
-import org.apache.dubbo.rpc.cluster.Cluster;
+import org.apache.dubbo.config.utils.ConfigConverter;
 import org.apache.dubbo.rpc.support.MockInvoker;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * AbstractDefaultConfig
@@ -102,157 +88,31 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     // the scope for referring/exporting a service, if it's local, it means searching in current JVM only.
     private String scope;
 
-    protected void checkRegistry() {
-        // for backward compatibility
+    protected String dynamicType;
+
+    public void checkRegistry() {
         if (registries == null || registries.isEmpty()) {
-            String address = ConfigUtils.getProperty("dubbo.registry.address");
-            if (address != null && address.length() > 0) {
-                registries = new ArrayList<RegistryConfig>();
-                String[] as = address.split("\\s*[|]+\\s*");
-                for (String a : as) {
-                    RegistryConfig registryConfig = new RegistryConfig();
-                    registryConfig.setAddress(a);
-                    registries.add(registryConfig);
-                }
-            }
-        }
-        if ((registries == null || registries.isEmpty())) {
-            throw new IllegalStateException((getClass().getSimpleName().startsWith("Reference")
-                    ? "No such any registry to refer service in consumer "
-                    : "No such any registry to export service in provider ")
-                    + NetUtils.getLocalHost()
-                    + " use dubbo version "
-                    + Version.getVersion()
-                    + ", Please add <dubbo:registry address=\"...\" /> to your spring config. If you want unregister, please set <dubbo:service registry=\"N/A\" />");
-        }
-        for (RegistryConfig registryConfig : registries) {
-            appendProperties(registryConfig);
+            registries = new ArrayList<>();
+            RegistryConfig registryConfig = new RegistryConfig();
+            registries.add(registryConfig);
         }
     }
 
     @SuppressWarnings("deprecation")
-    protected void checkApplication() {
+    public void checkApplication() {
         // for backward compatibility
         if (application == null) {
-            String applicationName = ConfigUtils.getProperty("dubbo.application.name");
+            String applicationName = Environment.getInstance().getCompositeConf().getString("dubbo.application.name");
             if (applicationName != null && applicationName.length() > 0) {
                 application = new ApplicationConfig();
+                application.setName(applicationName);
             }
         }
+        Environment.getInstance().setAppConfiguration(ConfigConverter.configToMap(application, null));
         if (application == null) {
             throw new IllegalStateException(
                     "No such application config! Please add <dubbo:application name=\"...\" /> to your spring config.");
         }
-        appendProperties(application);
-
-        String wait = ConfigUtils.getProperty(Constants.SHUTDOWN_WAIT_KEY);
-        if (wait != null && wait.trim().length() > 0) {
-            System.setProperty(Constants.SHUTDOWN_WAIT_KEY, wait.trim());
-        } else {
-            wait = ConfigUtils.getProperty(Constants.SHUTDOWN_WAIT_SECONDS_KEY);
-            if (wait != null && wait.trim().length() > 0) {
-                System.setProperty(Constants.SHUTDOWN_WAIT_SECONDS_KEY, wait.trim());
-            }
-        }
-    }
-
-    protected List<URL> loadRegistries(boolean provider) {
-        checkRegistry();
-        List<URL> registryList = new ArrayList<URL>();
-        if (registries != null && !registries.isEmpty()) {
-            for (RegistryConfig config : registries) {
-                String address = config.getAddress();
-                if (address == null || address.length() == 0) {
-                    address = Constants.ANYHOST_VALUE;
-                }
-                String sysaddress = System.getProperty("dubbo.registry.address");
-                if (sysaddress != null && sysaddress.length() > 0) {
-                    address = sysaddress;
-                }
-                if (address.length() > 0 && !RegistryConfig.NO_AVAILABLE.equalsIgnoreCase(address)) {
-                    Map<String, String> map = new HashMap<String, String>();
-                    appendParameters(map, application);
-                    appendParameters(map, config);
-                    map.put("path", RegistryService.class.getName());
-                    map.put("dubbo", Version.getProtocolVersion());
-                    map.put(Constants.TIMESTAMP_KEY, String.valueOf(System.currentTimeMillis()));
-                    if (ConfigUtils.getPid() > 0) {
-                        map.put(Constants.PID_KEY, String.valueOf(ConfigUtils.getPid()));
-                    }
-                    if (!map.containsKey("protocol")) {
-                        if (ExtensionLoader.getExtensionLoader(RegistryFactory.class).hasExtension("remote")) {
-                            map.put("protocol", "remote");
-                        } else {
-                            map.put("protocol", "dubbo");
-                        }
-                    }
-                    List<URL> urls = UrlUtils.parseURLs(address, map);
-                    for (URL url : urls) {
-                        url = url.addParameter(Constants.REGISTRY_KEY, url.getProtocol());
-                        url = url.setProtocol(Constants.REGISTRY_PROTOCOL);
-                        if ((provider && url.getParameter(Constants.REGISTER_KEY, true))
-                                || (!provider && url.getParameter(Constants.SUBSCRIBE_KEY, true))) {
-                            registryList.add(url);
-                        }
-                    }
-                }
-            }
-        }
-        return registryList;
-    }
-
-    protected URL loadMonitor(URL registryURL) {
-        if (monitor == null) {
-            String monitorAddress = ConfigUtils.getProperty("dubbo.monitor.address");
-            String monitorProtocol = ConfigUtils.getProperty("dubbo.monitor.protocol");
-            if ((monitorAddress == null || monitorAddress.length() == 0) && (monitorProtocol == null || monitorProtocol.length() == 0)) {
-                return null;
-            }
-
-            monitor = new MonitorConfig();
-            if (monitorAddress != null && monitorAddress.length() > 0) {
-                monitor.setAddress(monitorAddress);
-            }
-            if (monitorProtocol != null && monitorProtocol.length() > 0) {
-                monitor.setProtocol(monitorProtocol);
-            }
-        }
-        appendProperties(monitor);
-        Map<String, String> map = new HashMap<String, String>();
-        map.put(Constants.INTERFACE_KEY, MonitorService.class.getName());
-        map.put("dubbo", Version.getProtocolVersion());
-        map.put(Constants.TIMESTAMP_KEY, String.valueOf(System.currentTimeMillis()));
-        if (ConfigUtils.getPid() > 0) {
-            map.put(Constants.PID_KEY, String.valueOf(ConfigUtils.getPid()));
-        }
-        //set ip
-        String hostToRegistry = ConfigUtils.getSystemProperty(Constants.DUBBO_IP_TO_REGISTRY);
-        if (hostToRegistry == null || hostToRegistry.length() == 0) {
-            hostToRegistry = NetUtils.getLocalHost();
-        } else if (NetUtils.isInvalidLocalHost(hostToRegistry)) {
-            throw new IllegalArgumentException("Specified invalid registry ip from property:" + Constants.DUBBO_IP_TO_REGISTRY + ", value:" + hostToRegistry);
-        }
-        map.put(Constants.REGISTER_IP_KEY, hostToRegistry);
-        appendParameters(map, monitor);
-        appendParameters(map, application);
-        String address = monitor.getAddress();
-        String sysaddress = System.getProperty("dubbo.monitor.address");
-        if (sysaddress != null && sysaddress.length() > 0) {
-            address = sysaddress;
-        }
-        if (ConfigUtils.isNotEmpty(address)) {
-            if (!map.containsKey(Constants.PROTOCOL_KEY)) {
-                if (ExtensionLoader.getExtensionLoader(MonitorFactory.class).hasExtension("logstat")) {
-                    map.put(Constants.PROTOCOL_KEY, "logstat");
-                } else {
-                    map.put(Constants.PROTOCOL_KEY, "dubbo");
-                }
-            }
-            return UrlUtils.parseURL(address, map);
-        } else if (Constants.REGISTRY_PROTOCOL.equals(monitor.getProtocol()) && registryURL != null) {
-            return registryURL.setProtocol("dubbo").addParameter(Constants.PROTOCOL_KEY, "registry").addParameterAndEncoded(Constants.REFER_KEY, StringUtils.toQueryString(map));
-        }
-        return null;
     }
 
     protected void checkInterfaceAndMethods(Class<?> interfaceClass, List<MethodConfig> methods) {
@@ -286,7 +146,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         }
     }
 
-    protected void checkStubAndMock(Class<?> interfaceClass) {
+    public void checkStubAndMock(Class<?> interfaceClass) {
         if (ConfigUtils.isNotEmpty(local)) {
             Class<?> localClass = ConfigUtils.isDefault(local) ? ReflectUtils.forName(interfaceClass.getName() + "Local") : ReflectUtils.forName(local);
             if (!interfaceClass.isAssignableFrom(localClass)) {
@@ -342,6 +202,16 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
 
     /**
      * @param local
+     * @deprecated Replace to <code>setStub(String)</code>
+     */
+    @Deprecated
+    public void setLocal(String local) {
+        checkName("local", local);
+        this.local = local;
+    }
+
+    /**
+     * @param local
      * @deprecated Replace to <code>setStub(Boolean)</code>
      */
     @Deprecated
@@ -353,18 +223,13 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         }
     }
 
-    /**
-     * @param local
-     * @deprecated Replace to <code>setStub(String)</code>
-     */
-    @Deprecated
-    public void setLocal(String local) {
-        checkName("local", local);
-        this.local = local;
-    }
-
     public String getStub() {
         return stub;
+    }
+
+    public void setStub(String stub) {
+        checkName("stub", stub);
+        this.stub = stub;
     }
 
     public void setStub(Boolean stub) {
@@ -375,17 +240,12 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         }
     }
 
-    public void setStub(String stub) {
-        checkName("stub", stub);
-        this.stub = stub;
-    }
-
     public String getCluster() {
         return cluster;
     }
 
     public void setCluster(String cluster) {
-        checkExtension(Cluster.class, "cluster", cluster);
+        checkExtension("org.apache.dubbo.rpc.cluster.Cluster", "cluster", cluster);
         this.cluster = cluster;
     }
 
@@ -394,7 +254,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     }
 
     public void setProxy(String proxy) {
-        checkExtension(ProxyFactory.class, "proxy", proxy);
+        checkExtension("org.apache.dubbo.rpc.ProxyFactory", "proxy", proxy);
         this.proxy = proxy;
     }
 
@@ -412,7 +272,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     }
 
     public void setFilter(String filter) {
-        checkMultiExtension(Filter.class, "filter", filter);
+        checkMultiExtension("org.apache.dubbo.rpc.Filter", "filter", filter);
         this.filter = filter;
     }
 
@@ -422,7 +282,7 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
     }
 
     public void setListener(String listener) {
-        checkMultiExtension(InvokerListener.class, "listener", listener);
+        checkMultiExtension("org.apache.dubbo.rpc.InvokerListener", "listener", listener);
         this.listener = listener;
     }
 
@@ -474,12 +334,12 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
         return monitor;
     }
 
-    public void setMonitor(String monitor) {
-        this.monitor = new MonitorConfig(monitor);
-    }
-
     public void setMonitor(MonitorConfig monitor) {
         this.monitor = monitor;
+    }
+
+    public void setMonitor(String monitor) {
+        this.monitor = new MonitorConfig(monitor);
     }
 
     public String getOwner() {
