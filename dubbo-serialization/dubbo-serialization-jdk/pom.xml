@@ -39,5 +39,12 @@ limitations under the License.
             <groupId>com.alibaba</groupId>
             <artifactId>hessian-lite</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo-test-base</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

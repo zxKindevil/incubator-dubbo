@@ -16,8 +16,7 @@
  */
 package org.apache.dubbo.common.serialize.serialization;
 
-import org.apache.dubbo.common.model.Person;
-
+import org.apache.dubbo.test.serialization.model.Person;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -26,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 public abstract class AbstractSerializationPersionOkTest extends AbstractSerializationTest {
     @Test
     public void test_Person() throws Exception {

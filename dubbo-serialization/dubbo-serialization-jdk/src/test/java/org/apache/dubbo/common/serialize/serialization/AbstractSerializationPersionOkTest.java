@@ -16,8 +16,8 @@
  */
 package org.apache.dubbo.common.serialize.serialization;
 
-import org.apache.dubbo.common.model.Person;
 
+import org.apache.dubbo.test.serialization.model.Person;
 import org.junit.Test;
 
 import java.util.ArrayList;

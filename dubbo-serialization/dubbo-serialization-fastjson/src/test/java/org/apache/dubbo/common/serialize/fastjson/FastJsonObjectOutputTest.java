@@ -16,7 +16,7 @@
  */
 package org.apache.dubbo.common.serialize.fastjson;
 
-import org.apache.dubbo.common.serialize.fastjson.model.Image;
+import org.apache.dubbo.test.serialization.model.media.Image;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,7 +24,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class FastJsonObjectOutputTest {

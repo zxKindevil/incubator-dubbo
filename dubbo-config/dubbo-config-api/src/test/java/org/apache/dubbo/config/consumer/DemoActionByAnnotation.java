@@ -16,8 +16,7 @@
  */
 package org.apache.dubbo.config.consumer;
 
-import org.apache.dubbo.config.api.DemoService;
-
+import org.apache.dubbo.test.config.api.DemoService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**

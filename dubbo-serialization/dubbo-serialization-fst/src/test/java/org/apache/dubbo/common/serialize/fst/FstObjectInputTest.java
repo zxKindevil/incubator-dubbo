@@ -16,15 +16,14 @@
  */
 package org.apache.dubbo.common.serialize.fst;
 
-import org.apache.dubbo.common.serialize.fst.model.AnimalEnum;
-import org.apache.dubbo.common.serialize.fst.model.FullAddress;
+import org.apache.dubbo.test.serialization.model.person.FullAddress;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 public class FstObjectInputTest {
     private FstObjectInput fstObjectInput;

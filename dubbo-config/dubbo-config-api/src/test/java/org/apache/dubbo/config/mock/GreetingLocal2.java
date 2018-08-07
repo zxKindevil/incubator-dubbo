@@ -16,7 +16,7 @@
  */
 package org.apache.dubbo.config.mock;
 
-import org.apache.dubbo.config.api.Greeting;
+import org.apache.dubbo.test.config.api.Greeting;
 
 public class GreetingLocal2 implements Greeting {
     @Override

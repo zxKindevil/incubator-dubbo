@@ -17,24 +17,21 @@
 package org.apache.dubbo.common.serialize.serialization;
 
 import org.apache.dubbo.common.URL;
-import org.apache.dubbo.common.model.AnimalEnum;
-import org.apache.dubbo.common.model.BizException;
-import org.apache.dubbo.common.model.BizExceptionNoDefaultConstructor;
-import org.apache.dubbo.common.model.SerializablePerson;
-import org.apache.dubbo.common.model.media.Image;
-import org.apache.dubbo.common.model.media.Image.Size;
-import org.apache.dubbo.common.model.media.Media;
-import org.apache.dubbo.common.model.media.Media.Player;
-import org.apache.dubbo.common.model.media.MediaContent;
-import org.apache.dubbo.common.model.person.BigPerson;
-import org.apache.dubbo.common.model.person.FullAddress;
-import org.apache.dubbo.common.model.person.PersonInfo;
-import org.apache.dubbo.common.model.person.PersonStatus;
-import org.apache.dubbo.common.model.person.Phone;
 import org.apache.dubbo.common.serialize.ObjectInput;
 import org.apache.dubbo.common.serialize.ObjectOutput;
 import org.apache.dubbo.common.serialize.Serialization;
-
+import org.apache.dubbo.test.serialization.model.AnimalEnum;
+import org.apache.dubbo.test.serialization.model.BizException;
+import org.apache.dubbo.test.serialization.model.BizExceptionNoDefaultConstructor;
+import org.apache.dubbo.test.serialization.model.SerializablePerson;
+import org.apache.dubbo.test.serialization.model.media.Image;
+import org.apache.dubbo.test.serialization.model.media.Media;
+import org.apache.dubbo.test.serialization.model.media.MediaContent;
+import org.apache.dubbo.test.serialization.model.person.BigPerson;
+import org.apache.dubbo.test.serialization.model.person.FullAddress;
+import org.apache.dubbo.test.serialization.model.person.PersonInfo;
+import org.apache.dubbo.test.serialization.model.person.PersonStatus;
+import org.apache.dubbo.test.serialization.model.person.Phone;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -117,7 +114,7 @@ public abstract class AbstractSerializationTest {
         persons.add("lucy");
         media.setPersons(persons);
         media.setCopyright("1999-2011");
-        media.setPlayer(Player.FLASH);
+        media.setPlayer(Media.Player.FLASH);
 
         List<Image> images = new ArrayList<Image>();
         for (int i = 0; i < 10; ++i) {
@@ -126,7 +123,7 @@ public abstract class AbstractSerializationTest {
             if (i % 2 == 0) image.setTitle("title" + i);
             image.setWidth(34 + i);
             image.setHeight(2323 + i);
-            image.setSize((i % 2 == 0) ? Size.SMALL : Size.LARGE);
+            image.setSize((i % 2 == 0) ? Image.Size.SMALL : Image.Size.LARGE);
 
             images.add(image);
         }

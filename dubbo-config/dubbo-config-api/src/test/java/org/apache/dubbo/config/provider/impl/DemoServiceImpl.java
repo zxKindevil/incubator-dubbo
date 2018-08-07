@@ -16,10 +16,10 @@
  */
 package org.apache.dubbo.config.provider.impl;
 
-import org.apache.dubbo.config.api.Box;
-import org.apache.dubbo.config.api.DemoException;
-import org.apache.dubbo.config.api.DemoService;
-import org.apache.dubbo.config.api.User;
+import org.apache.dubbo.test.config.api.Box;
+import org.apache.dubbo.test.config.api.DemoException;
+import org.apache.dubbo.test.config.api.DemoService;
+import org.apache.dubbo.test.config.api.User;
 
 import java.util.List;
 

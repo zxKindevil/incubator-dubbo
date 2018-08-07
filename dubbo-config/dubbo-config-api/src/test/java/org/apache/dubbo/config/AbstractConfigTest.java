@@ -17,10 +17,10 @@
 package org.apache.dubbo.config;
 
 import junit.framework.TestCase;
-import org.apache.dubbo.config.api.Greeting;
 import org.apache.dubbo.config.model.AnnotationConfig;
 import org.apache.dubbo.config.model.AttributeConfig;
 import org.apache.dubbo.config.model.Config;
+import org.apache.dubbo.test.config.api.Greeting;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 

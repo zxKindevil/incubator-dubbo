@@ -18,13 +18,13 @@ package org.apache.dubbo.config;
 
 import junit.framework.TestCase;
 import org.apache.dubbo.common.Constants;
-import org.apache.dubbo.config.api.Greeting;
 import org.apache.dubbo.config.mock.GreetingLocal1;
 import org.apache.dubbo.config.mock.GreetingLocal2;
 import org.apache.dubbo.config.mock.GreetingLocal3;
 import org.apache.dubbo.config.mock.GreetingMock1;
 import org.apache.dubbo.config.mock.GreetingMock2;
 import org.apache.dubbo.config.model.InterfaceConfig;
+import org.apache.dubbo.test.config.api.Greeting;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;

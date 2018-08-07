@@ -70,11 +70,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.dubbo</groupId>
-            <artifactId>dubbo-config-dynamic</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.dubbo</groupId>
             <artifactId>dubbo-test-base</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
@@ -107,6 +102,16 @@
             <groupId>org.apache.dubbo</groupId>
             <artifactId>dubbo-serialization-jdk</artifactId>
             <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.el</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

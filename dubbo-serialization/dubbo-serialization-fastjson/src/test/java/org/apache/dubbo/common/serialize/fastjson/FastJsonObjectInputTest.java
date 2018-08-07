@@ -16,8 +16,9 @@
  */
 package org.apache.dubbo.common.serialize.fastjson;
 
-import org.apache.dubbo.common.serialize.fastjson.model.Person;
 import com.alibaba.fastjson.JSONObject;
+
+import org.apache.dubbo.test.serialization.model.Person;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
