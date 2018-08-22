@@ -27,6 +27,7 @@ public class CallbackProvider {
         String config = CallbackProvider.class.getPackage().getName().replace('.', '/') + "/callback-provider.xml";
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(config);
         context.start();
+        System.out.println("done");
         System.in.read();
     }
 
