@@ -21,6 +21,8 @@ import com.alibaba.dubbo.examples.callback.api.CallbackService;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * CallbackConsumer
  */
@@ -31,13 +33,14 @@ public class CallbackConsumer {
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(config);
         context.start();
         CallbackService callbackService = (CallbackService) context.getBean("callbackService");
-        callbackService.addListener("foo.bar", new CallbackListener() {
+        callbackService.addListener("i am param", new CallbackListener() {
             @Override
             public void changed(String msg) {
-                System.out.println("callback1:" + msg);
+                System.out.println("async deal " + msg);
             }
         });
-        System.in.read();
+//        System.in.read();
+        TimeUnit.SECONDS.sleep(2);
     }
 
 }

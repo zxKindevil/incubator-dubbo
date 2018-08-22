@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * CallbackServiceImpl
@@ -32,33 +33,46 @@ public class CallbackServiceImpl implements CallbackService {
     private final Map<String, CallbackListener> listeners = new ConcurrentHashMap<String, CallbackListener>();
 
     public CallbackServiceImpl() {
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        for (Map.Entry<String, CallbackListener> entry : listeners.entrySet()) {
-                            try {
-                                entry.getValue().changed(getChanged(entry.getKey()));
-                            } catch (Throwable t) {
-                                listeners.remove(entry.getKey());
-                            }
-                        }
-                        Thread.sleep(5000); // timely trigger change event
-                    } catch (Throwable t) {
-                        t.printStackTrace();
-                    }
-                }
-            }
-        });
-        t.setDaemon(true);
-        t.start();
+//        Thread t = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                while (true) {
+//                    try {
+//                        for (Map.Entry<String, CallbackListener> entry : listeners.entrySet()) {
+//                            try {
+//                                entry.getValue().changed(getChanged(entry.getKey()));
+//                            } catch (Throwable t) {
+//                                listeners.remove(entry.getKey());
+//                            }
+//                        }
+//                        Thread.sleep(5000); // timely trigger change event
+//                    } catch (Throwable t) {
+//                        t.printStackTrace();
+//                    }
+//                }
+//            }
+//        });
+//        t.setDaemon(true);
+//        t.start();
     }
 
     @Override
-    public void addListener(String key, CallbackListener listener) {
-        listeners.put(key, listener);
-        listener.changed(getChanged(key)); // send notification for change
+    public void addListener(final String key, final CallbackListener listener) {
+//        listeners.put(key, listener);
+//        listener.changed(getChanged(key));
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                    listener.changed(key + "ssssssssssss xxxxxxxxxx done");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        t.start();
     }
 
     private String getChanged(String key) {
